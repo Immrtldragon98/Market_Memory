@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -55,6 +56,22 @@ def _hydrate_thesis(thesis: dict, user_id: str):
     return {**thesis, "assumptions": assumptions or [], "evidence": evidence or []}
 
 
+def _health_from_assumptions(assumptions: list[dict]) -> str:
+    if not assumptions:
+        return "uncertain"
+
+    counts = Counter(item.get("status", "unknown") for item in assumptions)
+    if counts["broken"]:
+        return "broken"
+    if counts["weakening"] > counts["strengthening"]:
+        return "weakening"
+    if counts["strengthening"] > counts["weakening"]:
+        return "strengthening"
+    if counts["stable"] == len(assumptions):
+        return "stable"
+    return "uncertain"
+
+
 @router.post("/theses", status_code=status.HTTP_201_CREATED)
 async def create_thesis(payload: ThesisCreate, user=Depends(get_current_user)):
     clean_assumptions = [a.strip() for a in payload.assumptions if a.strip()]
@@ -94,6 +111,66 @@ async def list_theses(symbol: str | None = None, user=Depends(get_current_user))
 @router.get("/theses/{thesis_id}")
 async def get_thesis(thesis_id: int, user=Depends(get_current_user)):
     return _hydrate_thesis(_owned_thesis(thesis_id, user.id), user.id)
+
+
+@router.get("/theses/{thesis_id}/review")
+async def review_thesis(thesis_id: int, user=Depends(get_current_user)):
+    current = _hydrate_thesis(_owned_thesis(thesis_id, user.id), user.id)
+    snapshots = (
+        supabase.table("thesis_snapshots")
+        .select("*")
+        .eq("thesis_id", thesis_id)
+        .eq("user_id", user.id)
+        .order("created_at", desc=False)
+        .execute()
+    ).data or []
+
+    original_snapshot = snapshots[0] if snapshots else None
+    original = (original_snapshot or {}).get("thesis_payload") or {}
+
+    assumption_counts = Counter(
+        item.get("status", "unknown") for item in current["assumptions"]
+    )
+    evidence_counts = Counter(
+        item.get("direction", "neutral") for item in current["evidence"]
+    )
+
+    drift = {
+        "expected_outcome_changed": bool(original) and original.get("expected_outcome") != current.get("expected_outcome"),
+        "reasoning_changed": bool(original) and original.get("reasoning") != current.get("reasoning"),
+        "invalidation_changed": bool(original) and original.get("invalidation_condition") != current.get("invalidation_condition"),
+        "confidence_changed": bool(original) and original.get("confidence") != current.get("confidence"),
+    }
+    drift["core_reasoning_changed"] = any(
+        drift[key]
+        for key in (
+            "expected_outcome_changed",
+            "reasoning_changed",
+            "invalidation_changed",
+        )
+    )
+
+    return {
+        "thesis_id": thesis_id,
+        "health": _health_from_assumptions(current["assumptions"]),
+        "assumption_summary": {
+            "total": len(current["assumptions"]),
+            "unknown": assumption_counts["unknown"],
+            "strengthening": assumption_counts["strengthening"],
+            "stable": assumption_counts["stable"],
+            "weakening": assumption_counts["weakening"],
+            "broken": assumption_counts["broken"],
+        },
+        "evidence_summary": {
+            "total": len(current["evidence"]),
+            "supports": evidence_counts["supports"],
+            "contradicts": evidence_counts["contradicts"],
+            "neutral": evidence_counts["neutral"],
+        },
+        "drift": drift,
+        "original_snapshot": original_snapshot,
+        "current": current,
+    }
 
 
 @router.patch("/theses/{thesis_id}")
