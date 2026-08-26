@@ -1,34 +1,45 @@
 # Market Memory
 
-Market Memory is a personal investing decision-memory system.
+**Digital memory for market research and trading decisions.**
 
-Its core purpose is to remember **why** an investment thesis was formed, preserve what was known at that moment, monitor the assumptions behind the thesis, and later compare the original reasoning with what actually happened.
+Market Memory is a focused trading journal and market observation system for recording what you saw, what you thought, and what you decided around the market.
 
-## V0 product loop
+## Core product
 
-**Discover → Understand → Thesis → Assumptions → Memory → Monitor → Review → Learn**
+1. **Trading journal** — record decisions, notes, confidence and mistakes.
+2. **Market observations** — quickly save what you notice about an asset at a point in time.
+3. **Watchlists** — keep the markets you care about close.
+4. **Price alerts** — remember important levels without continuously watching the screen.
+5. **Market snapshots** — freeze market context and your note so it can be revisited later.
 
-The current foundation contains:
+## Product loop
 
-- FastAPI backend
-- Expo / React Native frontend
-- Supabase authentication and persistence
-- Market discovery and watchlists
-- Structured investment theses
-- Explicit thesis assumptions
-- Evidence and immutable thesis snapshots
-- Alerts, journal, analytics and AI-assistant foundations
+**Observe → Record → Decide → Remember → Review**
+
+The product deliberately starts small. Structured thesis analysis, AI reflection and deeper research can extend this memory later, but they are not the center of the core experience.
+
+## Architecture
+
+Mobile-first application using:
+
+- React Native / Expo
+- TypeScript
+- FastAPI
+- Supabase
+
+## Engineering principles
+
+- Memory should be fast to capture.
+- Historical snapshots should be immutable.
+- User-owned data must be isolated and authenticated.
+- Focused workflows are preferred over feature-heavy interfaces.
+- AI is optional enrichment, not a dependency for the core product.
 
 ## Repository layout
 
-- `market-memory-backend/` — API, services, models, migrations
-- `market-memory-frontend/` — Expo application
-- `V0_2_THESIS_FOUNDATION.md` — current product/foundation notes
-
-## Product principle
-
-Market Memory does **not** aim to output automatic BUY / HOLD / SELL calls. It is designed to help users understand what they are investing in, make their assumptions explicit, challenge their reasoning, and learn from outcomes over time.
+- `market-memory-backend/` — FastAPI API, services and database migrations
+- `market-memory-frontend/` — Expo / React Native application
 
 ---
 
-Current baseline: **v0.2 Thesis Foundation**
+Current work: **v1 Core Memory Rebuild**
