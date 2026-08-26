@@ -38,6 +38,7 @@ export interface AIReflectionResponse { insight: string; }
 export type ThesisStatus = 'draft' | 'active' | 'weakened' | 'broken' | 'closed';
 export type AssumptionStatus = 'unknown' | 'strengthening' | 'stable' | 'weakening' | 'broken';
 export type EvidenceDirection = 'supports' | 'contradicts' | 'neutral';
+export type ThesisHealth = 'uncertain' | 'strengthening' | 'stable' | 'weakening' | 'broken';
 
 export interface ThesisAssumption {
   id: number;
@@ -89,4 +90,41 @@ export interface ThesisCreateRequest {
   timeframe?: string;
   confidence: number;
   assumptions: string[];
+}
+
+export interface ThesisSnapshot {
+  id: number;
+  thesis_id: number;
+  thesis_payload: Thesis;
+  market_payload: Record<string, unknown>;
+  note?: string | null;
+  created_at: string;
+}
+
+export interface ThesisReview {
+  thesis_id: number;
+  health: ThesisHealth;
+  assumption_summary: {
+    total: number;
+    unknown: number;
+    strengthening: number;
+    stable: number;
+    weakening: number;
+    broken: number;
+  };
+  evidence_summary: {
+    total: number;
+    supports: number;
+    contradicts: number;
+    neutral: number;
+  };
+  drift: {
+    expected_outcome_changed: boolean;
+    reasoning_changed: boolean;
+    invalidation_changed: boolean;
+    confidence_changed: boolean;
+    core_reasoning_changed: boolean;
+  };
+  original_snapshot?: ThesisSnapshot | null;
+  current: Thesis;
 }
