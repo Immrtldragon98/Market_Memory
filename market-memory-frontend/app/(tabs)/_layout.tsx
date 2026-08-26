@@ -12,11 +12,12 @@ export default function TabLayout() {
       tabBarActiveTintColor: colors.primary,
       tabBarInactiveTintColor: colors.textMuted,
     }}>
-      <Tabs.Screen name="discovery" options={{ title: 'Market Memory' }} />
-      <Tabs.Screen name="theses" options={{ title: 'Theses' }} />
-      <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
+      <Tabs.Screen name="discovery" options={{ title: 'Market' }} />
+      <Tabs.Screen name="memory" options={{ title: 'Memory' }} />
       <Tabs.Screen name="journal" options={{ title: 'Journal' }} />
+      <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
       <Tabs.Screen name="account" options={{ title: 'Account' }} />
+      <Tabs.Screen name="theses" options={{ href: null }} />
     </Tabs>
   );
 }
