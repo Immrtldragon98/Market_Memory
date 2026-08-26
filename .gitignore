@@ -1,0 +1,31 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+*.tsbuildinfo
+
+# Generated native projects
+android/
+ios/
+
+# Local/generated artifacts
+*.rar
+*.7z
+*.zip
+.DS_Store
+bbtree.txt
+bftree.txt

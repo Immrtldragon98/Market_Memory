@@ -1,0 +1,6 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+supabase>=2.0,<3
+pycoingecko>=3.2,<4
+openai>=1.0,<2
+apscheduler>=3.10,<4
